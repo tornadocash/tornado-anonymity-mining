@@ -1,0 +1,8 @@
+.vscode
+build
+circuits
+scripts
+contracts/RewardVerifier.sol
+contracts/WithdrawVerifier.sol
+contracts/TreeUpdateVerifier.sol
+contracts/FloatMath.sol

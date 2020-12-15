@@ -1,0 +1,62 @@
+{
+  "name": "tornado-cash-anonymity-mining",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/tornadocash/tornado-anonymity-mining.git",
+  "author": "Tornadocash team <hello@tornado.cash>",
+  "license": "MIT",
+  "files": [
+    "index.js",
+    "src/*",
+    "contracts/*"
+  ],
+  "scripts": {
+    "compile": "truffle compile",
+    "coverage": "yarn compile && truffle run coverage",
+    "test": "truffle test",
+    "test:stacktrace": "yarn test --stacktrace",
+    "eslint": "eslint --ext .js --ignore-path .gitignore .",
+    "prettier:check": "prettier --check . --config .prettierrc",
+    "prettier:fix": "prettier --write . --config .prettierrc",
+    "lint": "yarn eslint && yarn prettier:check",
+    "deploy:mainnet": "truffle migrate --network mainnet",
+    "deploy:kovan": "truffle migrate --network kovan",
+    "deploy:dev": "truffle migrate --skip-dry-run --network development",
+    "verify": "truffle run verify --network $NETWORK",
+    "circuit:reward": "scripts/buildCircuit.sh Reward",
+    "circuit:withdraw": "scripts/buildCircuit.sh Withdraw",
+    "circuit:treeUpdate": "scripts/buildCircuit.sh TreeUpdate",
+    "circuit": "mkdir -p build/circuits && yarn circuit:reward && yarn circuit:withdraw && yarn circuit:treeUpdate"
+  },
+  "devDependencies": {
+    "@openzeppelin/contracts": "^3.1.0",
+    "babel-eslint": "^10.1.0",
+    "bn-chai": "^1.0.1",
+    "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
+    "circom": "0.0.35",
+    "dotenv": "^8.2.0",
+    "eslint": "^7.5.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "prettier": "^2.1.2",
+    "prettier-plugin-solidity": "^1.0.0-alpha.59",
+    "rlp": "^2.2.6",
+    "solhint-plugin-prettier": "^0.0.4",
+    "solidity-coverage": "^0.7.7",
+    "torn-token": "git+https://github.com/tornadocash/torn-token.git#87743ba239c191baf8d351498d4007dfcd16d3d2",
+    "truffle": "^5.1.29",
+    "truffle-flattener": "^1.4.4",
+    "truffle-hdwallet-provider": "^1.0.17",
+    "truffle-plugin-verify": "^0.3.11"
+  },
+  "dependencies": {
+    "circomlib": "git+https://github.com/tornadocash/circomlib.git#3b492f9801573eebcfe1b6c584afe8a3beecf2b4",
+    "decimal.js": "^10.2.0",
+    "eth-sig-util": "^2.5.3",
+    "fixed-merkle-tree": "^0.3.4",
+    "snarkjs": "git+https://github.com/tornadocash/snarkjs.git#869181cfaf7526fe8972073d31655493a04326d5",
+    "web3": "^1.2.11",
+    "websnark": "git+https://github.com/tornadocash/websnark.git#86a526718cd6f6f5d31bdb1fe26a9ec8819f633e"
+  }
+}
