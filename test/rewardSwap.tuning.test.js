@@ -2,7 +2,7 @@
 require('chai').use(require('bn-chai')(web3.utils.BN)).use(require('chai-as-promised')).should()
 
 const { toBN, fromWei } = require('web3-utils')
-const { takeSnapshot, revertSnapshot, increaseTime, mineBlock } = require('../scripts/ganacheHelper')
+const { takeSnapshot, revertSnapshot, mineBlock } = require('../scripts/ganacheHelper')
 const Torn = artifacts.require('TORNMock')
 const RewardSwap = artifacts.require('RewardSwapMock')
 const tornConfig = require('torn-token')
