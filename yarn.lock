@@ -5025,9 +5025,10 @@ toidentifier@1.0.0:
   resolved "https://registry.yarnpkg.com/toidentifier/-/toidentifier-1.0.0.tgz#7e1be3470f1e77948bc43d94a3c8f4d7752ba553"
   integrity sha512-yaOH/Pk/VEhBWWTlhI+qXxDFXlejDGcQipMlyxda9nthulaxLZUNcUqFxokp0vcYnvteJln5FNQDRrxj3YcbVw==
 
-"torn-token@git+https://github.com/tornadocash/torn-token.git#ed68304596f73bf746321e1cd2454979688ef1dd":
+torn-token@^1.0.0:
   version "1.0.0"
-  resolved "git+https://github.com/tornadocash/torn-token.git#ed68304596f73bf746321e1cd2454979688ef1dd"
+  resolved "https://registry.yarnpkg.com/torn-token/-/torn-token-1.0.0.tgz#73e47025646c3e07ab733afbf7aa53b6ab9cad55"
+  integrity sha512-BRzt3fy4211jCb64cWyOb5/NMGt9M9EV2ZFnGQYMubKrVkszoYm97Nex+EBa0mvV2KfXzCmJ6tehoDgOFAPGug==
   dependencies:
     "@openzeppelin/contracts" "^3.1.0"
     dotenv "^8.2.0"
