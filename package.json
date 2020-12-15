@@ -44,7 +44,7 @@
     "rlp": "^2.2.6",
     "solhint-plugin-prettier": "^0.0.4",
     "solidity-coverage": "^0.7.7",
-    "torn-token": "git+https://github.com/tornadocash/torn-token.git#87743ba239c191baf8d351498d4007dfcd16d3d2",
+    "torn-token": "git+https://github.com/tornadocash/torn-token.git#ed68304596f73bf746321e1cd2454979688ef1dd",
     "truffle": "^5.1.29",
     "truffle-flattener": "^1.4.4",
     "truffle-hdwallet-provider": "^1.0.17",
