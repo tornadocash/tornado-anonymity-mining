@@ -16,6 +16,8 @@ jobs:
         with:
           node-version: 12
       - run: yarn install
+      - run: cargo install zkutil
+      - run: yarn circuit
       - run: yarn test
       - run: yarn lint
       - name: Telegram Failure Notification
