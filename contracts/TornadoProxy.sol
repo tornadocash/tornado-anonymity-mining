@@ -35,7 +35,11 @@ contract TornadoProxy is EnsResolve {
     }
   }
 
-  function deposit(ITornadoInstance _tornado, bytes32 _commitment, bytes calldata _encryptedNote) external payable {
+  function deposit(
+    ITornadoInstance _tornado,
+    bytes32 _commitment,
+    bytes calldata _encryptedNote
+  ) external payable {
     require(instances[_tornado], "The instance is not supported");
 
     _tornado.deposit{ value: msg.value }(_commitment);

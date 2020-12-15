@@ -2,7 +2,7 @@
 build
 circuits
 scripts
-contracts/RewardVerifier.sol
-contracts/WithdrawVerifier.sol
-contracts/TreeUpdateVerifier.sol
-contracts/FloatMath.sol
+contracts/verifiers/RewardVerifier.sol
+contracts/verifiers/WithdrawVerifier.sol
+contracts/verifiers/TreeUpdateVerifier.sol
+contracts/utils/FloatMath.sol

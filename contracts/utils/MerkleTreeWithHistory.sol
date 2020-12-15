@@ -88,7 +88,7 @@ contract MerkleTreeWithHistory {
           break;
         }
 
-        if(subtrees[i] == bytes32(0)) {
+        if (subtrees[i] == bytes32(0)) {
           subtrees[i] = filledSubtrees[i];
         }
         currentLevelHash = hashLeftRight(subtrees[i], currentLevelHash);
