@@ -91,7 +91,7 @@ contract('Miner', (accounts) => {
   const recipient = accounts[1]
   // eslint-disable-next-line no-unused-vars
   const relayer = accounts[2]
-  const levels = MERKLE_TREE_HEIGHT || 20
+  const levels = 20
   let snapshotId
   const AnotherWeb3 = require('web3')
   let contract
