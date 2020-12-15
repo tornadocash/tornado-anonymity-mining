@@ -14,11 +14,3 @@ $ cp .env.example .env
 $ yarn circuit
 $ yarn test
 ```
-
-## Deploying
-
-Deploy to Kovan:
-
-```bash
-$ yarn deploy:kovan
-```

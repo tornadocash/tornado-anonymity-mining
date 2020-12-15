@@ -36,8 +36,6 @@ const MerkleTree = require('fixed-merkle-tree')
 const Hasher2 = artifacts.require('Hasher2')
 const Hasher3 = artifacts.require('Hasher3')
 
-const { MERKLE_TREE_HEIGHT } = process.env
-
 // Set time to beginning of a second
 async function timeReset() {
   const delay = 1000 - new Date().getMilliseconds()

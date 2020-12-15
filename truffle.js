@@ -1,8 +1,3 @@
-require('dotenv').config()
-const HDWalletProvider = require('truffle-hdwallet-provider')
-const utils = require('web3-utils')
-const { PRIVATE_KEY, INFURA_TOKEN } = process.env
-
 module.exports = {
   // Uncommenting the defaults below
   // provides for an easier quick-start with Ganache.
@@ -21,24 +16,6 @@ module.exports = {
     //    port: 7545,
     //    network_id: "*"
     //  }
-    mainnet: {
-      provider: () => new HDWalletProvider(PRIVATE_KEY, `https://mainnet.infura.io/v3/${INFURA_TOKEN}`),
-      network_id: 1,
-      gas: 6000000,
-      gasPrice: utils.toWei('100', 'gwei'),
-      // confirmations: 0,
-      // timeoutBlocks: 200,
-      skipDryRun: true,
-    },
-    kovan: {
-      provider: () => new HDWalletProvider(PRIVATE_KEY, `https://kovan.infura.io/v3/${INFURA_TOKEN}`),
-      network_id: 42,
-      gas: 6000000,
-      gasPrice: utils.toWei('1', 'gwei'),
-      // confirmations: 0,
-      // timeoutBlocks: 200,
-      skipDryRun: true,
-    },
     coverage: {
       host: 'localhost',
       network_id: '*',
