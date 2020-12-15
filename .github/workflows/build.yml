@@ -37,9 +37,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Install dependencies
-        run: yarn install
-
       - name: NPM login
         # NPM doesn't understand env vars and needs auth file lol
         run: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc

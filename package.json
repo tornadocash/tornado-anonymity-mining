@@ -1,5 +1,5 @@
 {
-  "name": "tornado-cash-anonymity-mining",
+  "name": "tornado-anonymity-mining",
   "version": "1.0.0",
   "main": "index.js",
   "repository": "https://github.com/tornadocash/tornado-anonymity-mining.git",
