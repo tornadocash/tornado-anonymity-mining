@@ -5,7 +5,7 @@ pragma experimental ABIEncoderV2;
 
 import "./interfaces/IVerifier.sol";
 import "./interfaces/IRewardSwap.sol";
-import "./TornadoTrees.sol";
+import "tornado-trees/contracts/TornadoTrees.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "torn-token/contracts/ENS.sol";

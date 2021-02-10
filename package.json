@@ -52,6 +52,7 @@
     "eth-sig-util": "^2.5.3",
     "fixed-merkle-tree": "^0.3.4",
     "snarkjs": "git+https://github.com/tornadocash/snarkjs.git#869181cfaf7526fe8972073d31655493a04326d5",
+    "tornado-trees": "^0.0.4",
     "web3": "^1.2.11",
     "websnark": "git+https://github.com/tornadocash/websnark.git#86a526718cd6f6f5d31bdb1fe26a9ec8819f633e"
   }

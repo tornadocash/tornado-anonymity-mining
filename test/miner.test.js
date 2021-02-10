@@ -11,6 +11,7 @@ const Account = require('../src/account')
 const Note = require('../src/note')
 const {
   toFixedHex,
+  poseidonHash,
   poseidonHash2,
   packEncryptedMessage,
   unpackEncryptedMessage,
@@ -19,6 +20,7 @@ const {
 const { getEncryptionPublicKey } = require('eth-sig-util')
 const Miner = artifacts.require('MinerMock')
 const TornadoTrees = artifacts.require('TornadoTreesMock')
+const TornadoTreesV1 = artifacts.require('TornadoTreesV1Mock')
 const Torn = artifacts.require('TORNMock')
 const RewardSwap = artifacts.require('RewardSwapMock')
 const RewardVerifier = artifacts.require('RewardVerifier')
@@ -33,8 +35,6 @@ const provingKeys = {
   treeUpdateProvingKey: fs.readFileSync('./build/circuits/TreeUpdate_proving_key.bin').buffer,
 }
 const MerkleTree = require('fixed-merkle-tree')
-const Hasher2 = artifacts.require('Hasher2')
-const Hasher3 = artifacts.require('Hasher3')
 
 // Set time to beginning of a second
 async function timeReset() {
@@ -55,11 +55,13 @@ async function getNextAddr(sender, offset = 0) {
 }
 
 async function registerNote(note, tornadoTrees) {
-  await tornadoTrees.setBlockNumber(note.depositBlock)
-  await tornadoTrees.registerDeposit(note.instance, toFixedHex(note.commitment))
-
-  await tornadoTrees.setBlockNumber(note.withdrawalBlock)
-  await tornadoTrees.registerWithdrawal(note.instance, toFixedHex(note.nullifierHash))
+  await tornadoTrees.register(
+    note.instance,
+    toFixedHex(note.commitment),
+    toFixedHex(note.nullifierHash),
+    note.depositBlock,
+    note.withdrawalBlock,
+  )
 
   return {
     depositLeaf: {
@@ -118,17 +120,30 @@ contract('Miner', (accounts) => {
   const privateKey = web3.eth.accounts.create().privateKey.slice(2)
   const publicKey = getEncryptionPublicKey(privateKey)
   const operator = accounts[0]
+  const verifier = accounts[1]
   const thirtyDays = 30 * 24 * 3600
   const poolWeight = 1e11
   const governance = accounts[9]
+  let depositTree
+  let withdrawalTree
 
   before(async () => {
     const rewardVerifier = await RewardVerifier.new()
     const withdrawVerifier = await WithdrawVerifier.new()
     const treeUpdateVerifier = await TreeUpdateVerifier.new()
-    const hasher2 = await Hasher2.new()
-    const hasher3 = await Hasher3.new()
-    tornadoTrees = await TornadoTrees.new(operator, hasher2.address, hasher3.address, levels)
+    const tornadoTreesV1 = await TornadoTreesV1.new(
+      0,
+      0,
+      toFixedHex(emptyTree.root()),
+      toFixedHex(emptyTree.root()),
+    )
+
+    tornadoTrees = await TornadoTrees.new(operator, operator, tornadoTreesV1.address, verifier, {
+      unprocessedDeposits: 0,
+      unprocessedWithdrawals: 0,
+      depositsPerDay: 0,
+      withdrawalsPerDay: 0,
+    })
     const swapExpectedAddr = await getNextAddr(accounts[0], 1)
     const minerExpectedAddr = await getNextAddr(accounts[0], 2)
     torn = await Torn.new(sender, thirtyDays, [
@@ -151,15 +166,17 @@ contract('Miner', (accounts) => {
       [{ instance: tornado, value: RATE.toString() }],
     )
 
-    const depositData = []
-    const withdrawalData = []
+    depositTree = new MerkleTree(levels, [], { hashFunction: poseidonHash2 })
+    withdrawalTree = new MerkleTree(levels, [], { hashFunction: poseidonHash2 })
     for (const note of notes) {
       const { depositLeaf, withdrawalLeaf } = await registerNote(note, tornadoTrees)
-      depositData.push(depositLeaf)
-      withdrawalData.push(withdrawalLeaf)
+      depositTree.insert(poseidonHash([depositLeaf.instance, depositLeaf.hash, depositLeaf.block]))
+      withdrawalTree.insert(
+        poseidonHash([withdrawalLeaf.instance, withdrawalLeaf.hash, withdrawalLeaf.block]),
+      )
     }
 
-    await tornadoTrees.updateRoots(depositData, withdrawalData)
+    await tornadoTrees.updateRoots(toFixedHex(depositTree.root()), toFixedHex(withdrawalTree.root()))
 
     const anotherWeb3 = new AnotherWeb3(web3.currentProvider)
     contract = new anotherWeb3.eth.Contract(miner.abi, miner.address)
@@ -492,45 +509,6 @@ contract('Miner', (accounts) => {
       await miner
         .reward(proof, args, tmp.proof, update.args)
         .should.be.rejectedWith('Invalid tree update proof')
-    })
-
-    it('should work with outdated deposit or withdrawal merkle root', async () => {
-      const note0 = new Note({
-        instance: tornado,
-        depositBlock: 10,
-        withdrawalBlock: 55,
-      })
-      const note4 = new Note({
-        instance: tornado,
-        depositBlock: 10,
-        withdrawalBlock: 55,
-      })
-      const note5 = new Note({
-        instance: tornado,
-        depositBlock: 10,
-        withdrawalBlock: 65,
-      })
-
-      const claim1 = await controller.reward({ account: new Account(), note: note3, publicKey })
-
-      const note4Leaves = await registerNote(note4, tornadoTrees)
-      await tornadoTrees.updateRoots([note4Leaves.depositLeaf], [note4Leaves.withdrawalLeaf])
-
-      const claim2 = await controller.reward({ account: new Account(), note: note4, publicKey })
-
-      for (let i = 0; i < 9; i++) {
-        const note0Leaves = await registerNote(note0, tornadoTrees)
-        await tornadoTrees.updateRoots([note0Leaves.depositLeaf], [note0Leaves.withdrawalLeaf])
-      }
-
-      await miner.reward(claim1.proof, claim1.args).should.be.rejectedWith('Incorrect deposit tree root')
-      await miner.reward(claim2.proof, claim2.args).should.be.fulfilled
-
-      const note5Leaves = await registerNote(note5, tornadoTrees)
-      await tornadoTrees.updateRoots([note5Leaves.depositLeaf], [note5Leaves.withdrawalLeaf])
-
-      const claim3 = await controller.reward({ account: new Account(), note: note5, publicKey })
-      await miner.reward(claim3.proof, claim3.args).should.be.fulfilled
     })
   })
 

@@ -34,17 +34,6 @@ module.exports = {
         },
       },
     },
-    external: {
-      command: 'node ./compileHasher.js',
-      targets: [
-        {
-          path: './build/contracts/Hasher2.json',
-        },
-        {
-          path: './build/contracts/Hasher3.json',
-        },
-      ],
-    },
   },
   plugins: ['truffle-plugin-verify', 'solidity-coverage'],
 }
