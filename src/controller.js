@@ -97,8 +97,31 @@ class Controller {
     return { proofs, args }
   }
 
-  async reward({ account, note, publicKey, fee = 0, relayer = 0, accountCommitments = null }) {
-    const rate = await this.contract.methods.rates(note.instance).call()
+  /**
+   * Generates proof and args to claim AP (anonymity points) for a note
+   * @param {Account} account The account the AP will be added to
+   * @param {Note} note The target note
+   * @param {String} publicKey ETH public key for the Account encryption
+   * @param {Number} fee Fee for the relayer
+   * @param {String} relayer Relayer address
+   * @param {Number} rate How many AP is generated for the note in block time
+   * @param {String[]} accountCommitments An array of account commitments from miner contract
+   * @param {String[]} depositDataEvents An array of account commitments from miner contract
+   * @param {{instance: String, hash: String, block: Number, index: Number}[]} depositDataEvents An array of deposit objects from tornadoTrees contract. hash = commitment
+   * @param {{instance: String, hash: String, block: Number, index: Number}[]} withdrawalDataEvents An array of withdrawal objects from tornadoTrees contract. hash = nullifierHash
+   */
+  async reward({
+    account,
+    note,
+    publicKey,
+    fee = 0,
+    relayer = 0,
+    rate = null,
+    accountCommitments = null,
+    depositDataEvents = null,
+    withdrawalDataEvents = null,
+  }) {
+    rate = rate || (await this.contract.methods.rates(note.instance).call())
 
     const newAmount = account.amount.add(
       toBN(rate)
@@ -107,7 +130,7 @@ class Controller {
     )
     const newAccount = new Account({ amount: newAmount })
 
-    const depositDataEvents = await this._fetchDepositDataEvents()
+    depositDataEvents = depositDataEvents || (await this._fetchDepositDataEvents())
     const depositLeaves = depositDataEvents.map((x) => poseidonHash([x.instance, x.hash, x.block]))
     const depositTree = new MerkleTree(this.merkleTreeHeight, depositLeaves, { hashFunction: poseidonHash2 })
     const depositItem = depositDataEvents.filter((x) => x.hash === toFixedHex(note.commitment))
@@ -116,7 +139,7 @@ class Controller {
     }
     const depositPath = depositTree.path(depositItem[0].index)
 
-    const withdrawalDataEvents = await this._fetchWithdrawalDataEvents()
+    withdrawalDataEvents = withdrawalDataEvents || (await this._fetchWithdrawalDataEvents())
     const withdrawalLeaves = withdrawalDataEvents.map((x) => poseidonHash([x.instance, x.hash, x.block]))
     const withdrawalTree = new MerkleTree(this.merkleTreeHeight, withdrawalLeaves, {
       hashFunction: poseidonHash2,
@@ -135,7 +158,7 @@ class Controller {
       pathElements: new Array(this.merkleTreeHeight).fill(0),
       pathIndices: new Array(this.merkleTreeHeight).fill(0),
     }
-    const accountIndex = accountTree.indexOf(account.commitment, (a, b) => a.eq(b))
+    const accountIndex = accountTree.indexOf(account.commitment, (a, b) => toBN(a).eq(toBN(b)))
     const accountPath = accountIndex !== -1 ? accountTree.path(accountIndex) : zeroAccount
     const accountTreeUpdate = this._updateTree(accountTree, newAccount.commitment)
 
@@ -215,15 +238,15 @@ class Controller {
     }
   }
 
-  async withdraw({ account, amount, recipient, publicKey, fee = 0, relayer = 0 }) {
+  async withdraw({ account, amount, recipient, publicKey, fee = 0, relayer = 0, accountCommitments = null }) {
     const newAmount = account.amount.sub(toBN(amount)).sub(toBN(fee))
     const newAccount = new Account({ amount: newAmount })
 
-    const accountCommitments = await this._fetchAccountCommitments()
+    accountCommitments = accountCommitments || (await this._fetchAccountCommitments())
     const accountTree = new MerkleTree(this.merkleTreeHeight, accountCommitments, {
       hashFunction: poseidonHash2,
     })
-    const accountIndex = accountTree.indexOf(account.commitment, (a, b) => a.eq(b))
+    const accountIndex = accountTree.indexOf(account.commitment, (a, b) => toBN(a).eq(toBN(b)))
     if (accountIndex === -1) {
       throw new Error('The accounts tree does not contain such account commitment')
     }
