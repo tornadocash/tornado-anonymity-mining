@@ -8,15 +8,14 @@ import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "@openzeppelin/contracts/math/Math.sol";
 import "./interfaces/ITornadoInstance.sol";
 import "./interfaces/ITornadoTrees.sol";
-import "torn-token/contracts/ENS.sol";
 
-contract TornadoProxy is EnsResolve {
+contract TornadoProxy {
   using SafeERC20 for IERC20;
 
   event EncryptedNote(address indexed sender, bytes encryptedNote);
   enum InstanceState { Disabled, Enabled, Mineable }
   struct Instance {
-    bytes32 instance;
+    address instance;
     InstanceState state;
   }
 
@@ -38,7 +37,7 @@ contract TornadoProxy is EnsResolve {
     governance = _governance;
 
     for (uint256 i = 0; i < _instances.length; i++) {
-      instances[ITornadoInstance(resolve(_instances[i].instance))] = _instances[i].state;
+      instances[ITornadoInstance(_instances[i].instance)] = _instances[i].state;
     }
   }
 
