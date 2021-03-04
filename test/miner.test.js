@@ -138,12 +138,13 @@ contract('Miner', (accounts) => {
       toFixedHex(emptyTree.root()),
     )
 
-    tornadoTrees = await TornadoTrees.new(operator, operator, tornadoTreesV1.address, verifier, {
-      unprocessedDeposits: 0,
-      unprocessedWithdrawals: 0,
-      depositsPerDay: 0,
-      withdrawalsPerDay: 0,
+    tornadoTrees = await TornadoTrees.new(operator, tornadoTreesV1.address, {
+      depositsFrom: 0,
+      depositsStep: 0,
+      withdrawalsFrom: 0,
+      withdrawalsStep: 0,
     })
+    await tornadoTrees.initialize(operator, verifier)
     const swapExpectedAddr = await getNextAddr(accounts[0], 1)
     const minerExpectedAddr = await getNextAddr(accounts[0], 2)
     torn = await Torn.new(sender, thirtyDays, [
