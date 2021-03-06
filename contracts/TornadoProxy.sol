@@ -13,6 +13,8 @@ contract TornadoProxy {
   using SafeERC20 for IERC20;
 
   event EncryptedNote(address indexed sender, bytes encryptedNote);
+  event InstanceStateUpdate(address indexed instance, InstanceState state);
+
   enum InstanceState { Disabled, Enabled, Mineable }
   struct Instance {
     address instance;
@@ -75,6 +77,7 @@ contract TornadoProxy {
 
   function updateInstance(ITornadoInstance _instance, InstanceState _state) external onlyGovernance {
     instances[_instance] = _state;
+    emit InstanceStateUpdate(address(_instance), _state);
   }
 
   function setTornadoTreesContract(address _instance) external onlyGovernance {
