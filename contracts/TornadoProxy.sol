@@ -13,18 +13,24 @@ contract TornadoProxy {
   using SafeERC20 for IERC20;
 
   event EncryptedNote(address indexed sender, bytes encryptedNote);
-  event InstanceStateUpdate(address indexed instance, InstanceState state);
+  event InstanceStateUpdate(ITornadoInstance indexed instance, InstanceState state);
 
   enum InstanceState { Disabled, Enabled, Mineable }
+
   struct Instance {
-    ITornadoInstance instance;
-    InstanceState state;
     bool isERC20;
+    IERC20 token;
+    InstanceState state;
+  }
+
+  struct Tornado {
+    ITornadoInstance addr;
+    Instance instance;
   }
 
   ITornadoTrees public tornadoTrees;
   address public immutable governance;
-  mapping(ITornadoInstance => InstanceState) public instances;
+  mapping(ITornadoInstance => Instance) public instances;
 
   modifier onlyGovernance() {
     require(msg.sender == governance, "Not authorized");
@@ -34,7 +40,7 @@ contract TornadoProxy {
   constructor(
     address _tornadoTrees,
     address _governance,
-    Instance[] memory _instances
+    Tornado[] memory _instances
   ) public {
     tornadoTrees = ITornadoTrees(_tornadoTrees);
     governance = _governance;
@@ -49,12 +55,15 @@ contract TornadoProxy {
     bytes32 _commitment,
     bytes calldata _encryptedNote
   ) external payable {
-    require(instances[_tornado] != InstanceState.Disabled, "The instance is not supported");
+    Instance memory instance = instances[_tornado];
+    require(instance.state != InstanceState.Disabled, "The instance is not supported");
 
-    IERC20(_tornado.token()).safeTransferFrom(msg.sender, address(this), _tornado.denomination());
+    if (instance.isERC20) {
+      instance.token.safeTransferFrom(msg.sender, address(this), _tornado.denomination());
+    }
     _tornado.deposit{ value: msg.value }(_commitment);
 
-    if (instances[_tornado] == InstanceState.Mineable) {
+    if (instance.state == InstanceState.Mineable) {
       tornadoTrees.registerDeposit(address(_tornado), _commitment);
     }
     emit EncryptedNote(msg.sender, _encryptedNote);
@@ -70,17 +79,18 @@ contract TornadoProxy {
     uint256 _fee,
     uint256 _refund
   ) external payable {
-    require(instances[_tornado] != InstanceState.Disabled, "The instance is not supported");
+    Instance memory instance = instances[_tornado];
+    require(instance.state != InstanceState.Disabled, "The instance is not supported");
 
     _tornado.withdraw{ value: msg.value }(_proof, _root, _nullifierHash, _recipient, _relayer, _fee, _refund);
-    if (instances[_tornado] == InstanceState.Mineable) {
+    if (instance.state == InstanceState.Mineable) {
       tornadoTrees.registerWithdrawal(address(_tornado), _nullifierHash);
     }
   }
 
-  function updateInstance(Instance calldata _instance) external onlyGovernance {
-    _updateInstance(_instance);
-    emit InstanceStateUpdate(address(_instance), _state);
+  function updateInstance(Tornado calldata _tornado) external onlyGovernance {
+    _updateInstance(_tornado);
+    emit InstanceStateUpdate(_tornado.addr, _tornado.instance.state);
   }
 
   function setTornadoTreesContract(address _tornadoTrees) external onlyGovernance {
@@ -109,11 +119,12 @@ contract TornadoProxy {
     }
   }
 
-  function _updateInstance(Instance memory _tornado) internal {
-    instances[_tornado.instance] = _tornado.state;
-    if (_tornado.isERC20) {
-      IERC20 token = IERC20(_tornado.instance.token());
-      token.safeApprove(address(_tornado.instance), uint256(-1));
+  function _updateInstance(Tornado memory _tornado) internal {
+    instances[_tornado.addr] = _tornado.instance;
+    if (_tornado.instance.isERC20) {
+      IERC20 token = IERC20(_tornado.addr.token());
+      require(token == _tornado.instance.token, "Incorrect token");
+      token.safeApprove(address(_tornado.addr), uint256(-1));
     }
   }
 }
