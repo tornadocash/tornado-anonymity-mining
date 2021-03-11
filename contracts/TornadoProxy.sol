@@ -17,8 +17,9 @@ contract TornadoProxy {
 
   enum InstanceState { Disabled, Enabled, Mineable }
   struct Instance {
-    address instance;
+    ITornadoInstance instance;
     InstanceState state;
+    bool isERC20;
   }
 
   ITornadoTrees public tornadoTrees;
@@ -39,7 +40,7 @@ contract TornadoProxy {
     governance = _governance;
 
     for (uint256 i = 0; i < _instances.length; i++) {
-      instances[ITornadoInstance(_instances[i].instance)] = _instances[i].state;
+      _updateInstance(_instances[i]);
     }
   }
 
@@ -50,7 +51,9 @@ contract TornadoProxy {
   ) external payable {
     require(instances[_tornado] != InstanceState.Disabled, "The instance is not supported");
 
+    IERC20(_tornado.token()).safeTransferFrom(msg.sender, address(this), _tornado.denomination());
     _tornado.deposit{ value: msg.value }(_commitment);
+
     if (instances[_tornado] == InstanceState.Mineable) {
       tornadoTrees.registerDeposit(address(_tornado), _commitment);
     }
@@ -75,13 +78,13 @@ contract TornadoProxy {
     }
   }
 
-  function updateInstance(ITornadoInstance _instance, InstanceState _state) external onlyGovernance {
-    instances[_instance] = _state;
+  function updateInstance(Instance calldata _instance) external onlyGovernance {
+    _updateInstance(_instance);
     emit InstanceStateUpdate(address(_instance), _state);
   }
 
-  function setTornadoTreesContract(address _instance) external onlyGovernance {
-    tornadoTrees = ITornadoTrees(_instance);
+  function setTornadoTreesContract(address _tornadoTrees) external onlyGovernance {
+    tornadoTrees = ITornadoTrees(_tornadoTrees);
   }
 
   /// @dev Method to claim junk and accidentally sent tokens
@@ -103,6 +106,14 @@ contract TornadoProxy {
       uint256 balance = _balance == 0 ? totalBalance : Math.min(totalBalance, _balance);
       require(balance > 0, "TORN: trying to send 0 balance");
       _token.safeTransfer(_to, balance);
+    }
+  }
+
+  function _updateInstance(Instance memory _tornado) internal {
+    instances[_tornado.instance] = _tornado.state;
+    if (_tornado.isERC20) {
+      IERC20 token = IERC20(_tornado.instance.token());
+      token.safeApprove(address(_tornado.instance), uint256(-1));
     }
   }
 }
