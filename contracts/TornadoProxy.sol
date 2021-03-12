@@ -90,7 +90,6 @@ contract TornadoProxy {
 
   function updateInstance(Tornado calldata _tornado) external onlyGovernance {
     _updateInstance(_tornado);
-    emit InstanceStateUpdate(_tornado.addr, _tornado.instance.state);
   }
 
   function setTornadoTreesContract(address _tornadoTrees) external onlyGovernance {
@@ -124,7 +123,14 @@ contract TornadoProxy {
     if (_tornado.instance.isERC20) {
       IERC20 token = IERC20(_tornado.addr.token());
       require(token == _tornado.instance.token, "Incorrect token");
-      token.safeApprove(address(_tornado.addr), uint256(-1));
+      uint256 allowance = token.allowance(address(this), address(_tornado.addr));
+
+      if (_tornado.instance.state != InstanceState.Disabled && allowance == 0) {
+        token.safeApprove(address(_tornado.addr), uint256(-1));
+      } else if (_tornado.instance.state == InstanceState.Disabled && allowance != 0) {
+        token.safeApprove(address(_tornado.addr), 0);
+      }
     }
+    emit InstanceStateUpdate(_tornado.addr, _tornado.instance.state);
   }
 }
