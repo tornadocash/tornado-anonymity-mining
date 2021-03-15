@@ -88,6 +88,12 @@ contract TornadoProxy {
     }
   }
 
+  function backupNotes(bytes[] calldata _encryptedNotes) external {
+    for (uint256 i = 0; i < _encryptedNotes.length; i++) {
+      emit EncryptedNote(msg.sender, _encryptedNotes[i]);
+    }
+  }
+
   function updateInstance(Tornado calldata _tornado) external onlyGovernance {
     _updateInstance(_tornado);
   }
