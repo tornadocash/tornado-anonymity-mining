@@ -3,9 +3,9 @@
 pragma solidity ^0.6.0;
 
 interface ITornadoInstance {
-  function token() external returns (address);
+  function token() external view returns (address);
 
-  function denomination() external returns (uint256);
+  function denomination() external view returns (uint256);
 
   function deposit(bytes32 commitment) external payable;
 
