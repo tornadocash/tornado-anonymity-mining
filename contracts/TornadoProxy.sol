@@ -14,6 +14,7 @@ contract TornadoProxy {
 
   event EncryptedNote(address indexed sender, bytes encryptedNote);
   event InstanceStateUpdate(ITornadoInstance indexed instance, InstanceState state);
+  event TornadoTreesUpdated(ITornadoTrees addr);
 
   enum InstanceState { Disabled, Enabled, Mineable }
 
@@ -100,6 +101,7 @@ contract TornadoProxy {
 
   function setTornadoTreesContract(ITornadoTrees _tornadoTrees) external onlyGovernance {
     tornadoTrees = _tornadoTrees;
+    emit TornadoTreesUpdated(_tornadoTrees);
   }
 
   /// @dev Method to claim junk and accidentally sent tokens
