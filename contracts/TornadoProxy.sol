@@ -106,19 +106,19 @@ contract TornadoProxy {
   function rescueTokens(
     IERC20 _token,
     address payable _to,
-    uint256 _balance
+    uint256 _amount
   ) external onlyGovernance {
     require(_to != address(0), "TORN: can not send to zero address");
 
     if (_token == IERC20(0)) {
       // for Ether
       uint256 totalBalance = address(this).balance;
-      uint256 balance = _balance == 0 ? totalBalance : Math.min(totalBalance, _balance);
+      uint256 balance = Math.min(totalBalance, _amount);
       _to.transfer(balance);
     } else {
       // any other erc20
       uint256 totalBalance = _token.balanceOf(address(this));
-      uint256 balance = _balance == 0 ? totalBalance : Math.min(totalBalance, _balance);
+      uint256 balance = Math.min(totalBalance, _amount);
       require(balance > 0, "TORN: trying to send 0 balance");
       _token.safeTransfer(_to, balance);
     }
