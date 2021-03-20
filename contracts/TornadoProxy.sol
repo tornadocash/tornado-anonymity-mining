@@ -13,7 +13,7 @@ contract TornadoProxy {
   using SafeERC20 for IERC20;
 
   event EncryptedNote(address indexed sender, bytes encryptedNote);
-  event InstanceStateUpdate(ITornadoInstance indexed instance, InstanceState state);
+  event InstanceStateUpdated(ITornadoInstance indexed instance, InstanceState state);
   event TornadoTreesUpdated(ITornadoTrees addr);
 
   enum InstanceState { Disabled, Enabled, Mineable }
@@ -139,6 +139,6 @@ contract TornadoProxy {
         token.safeApprove(address(_tornado.addr), 0);
       }
     }
-    emit InstanceStateUpdate(_tornado.addr, _tornado.instance.state);
+    emit InstanceStateUpdated(_tornado.addr, _tornado.instance.state);
   }
 }
