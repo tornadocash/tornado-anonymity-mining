@@ -98,8 +98,8 @@ contract TornadoProxy {
     _updateInstance(_tornado);
   }
 
-  function setTornadoTreesContract(address _tornadoTrees) external onlyGovernance {
-    tornadoTrees = ITornadoTrees(_tornadoTrees);
+  function setTornadoTreesContract(ITornadoTrees _tornadoTrees) external onlyGovernance {
+    tornadoTrees = _tornadoTrees;
   }
 
   /// @dev Method to claim junk and accidentally sent tokens
