@@ -16,7 +16,7 @@ contract TornadoProxy {
   event InstanceStateUpdated(ITornadoInstance indexed instance, InstanceState state);
   event TornadoTreesUpdated(ITornadoTrees addr);
 
-  enum InstanceState { Disabled, Enabled, Mineable }
+  enum InstanceState { DISABLED, ENABLED, MINEABLE }
 
   struct Instance {
     bool isERC20;
@@ -57,14 +57,14 @@ contract TornadoProxy {
     bytes calldata _encryptedNote
   ) external payable {
     Instance memory instance = instances[_tornado];
-    require(instance.state != InstanceState.Disabled, "The instance is not supported");
+    require(instance.state != InstanceState.DISABLED, "The instance is not supported");
 
     if (instance.isERC20) {
       instance.token.safeTransferFrom(msg.sender, address(this), _tornado.denomination());
     }
     _tornado.deposit{ value: msg.value }(_commitment);
 
-    if (instance.state == InstanceState.Mineable) {
+    if (instance.state == InstanceState.MINEABLE) {
       tornadoTrees.registerDeposit(address(_tornado), _commitment);
     }
     emit EncryptedNote(msg.sender, _encryptedNote);
@@ -81,10 +81,10 @@ contract TornadoProxy {
     uint256 _refund
   ) external payable {
     Instance memory instance = instances[_tornado];
-    require(instance.state != InstanceState.Disabled, "The instance is not supported");
+    require(instance.state != InstanceState.DISABLED, "The instance is not supported");
 
     _tornado.withdraw{ value: msg.value }(_proof, _root, _nullifierHash, _recipient, _relayer, _fee, _refund);
-    if (instance.state == InstanceState.Mineable) {
+    if (instance.state == InstanceState.MINEABLE) {
       tornadoTrees.registerWithdrawal(address(_tornado), _nullifierHash);
     }
   }
@@ -133,9 +133,9 @@ contract TornadoProxy {
       require(token == _tornado.instance.token, "Incorrect token");
       uint256 allowance = token.allowance(address(this), address(_tornado.addr));
 
-      if (_tornado.instance.state != InstanceState.Disabled && allowance == 0) {
+      if (_tornado.instance.state != InstanceState.DISABLED && allowance == 0) {
         token.safeApprove(address(_tornado.addr), uint256(-1));
-      } else if (_tornado.instance.state == InstanceState.Disabled && allowance != 0) {
+      } else if (_tornado.instance.state == InstanceState.DISABLED && allowance != 0) {
         token.safeApprove(address(_tornado.addr), 0);
       }
     }
