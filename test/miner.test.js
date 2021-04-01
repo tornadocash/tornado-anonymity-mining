@@ -225,6 +225,22 @@ contract('Miner', (accounts) => {
       note.commitment.should.be.eq.BN(
         toBN('0x1a08fd10dae9806ce25b62582e44d237c1cb9f8d6bf73e756f18d0e5d7a7351a'),
       )
+      const note1 = Note.fromString(
+        'tornado-eth-1-5-0x00b9787ae8b877cc612acfc3d46eb1303c618ef386cb4383b75be5b300ac9b94818f3f7a589b4667612e879dbfd44198231c86aaa412a3770fd86d8fc045',
+        '0x8b3f5393bA08c24cc7ff5A66a832562aAB7bC95f',
+        10,
+        15,
+      )
+      note1.secret.should.be.eq.BN(toBN('0x45c08f6dd80f77a312a4aa861c239841d4bf9d872e6167469b587a3f8f8194'))
+      note1.nullifier.should.be.eq.BN(
+        toBN('0x9bac00b3e55bb78343cb86f38e613c30b16ed4c3cf2a61cc77b8e87a78b900'),
+      )
+      note1.nullifierHash.should.be.eq.BN(
+        toBN('0x1892018e434ed0476992c7e05e6022b69eacf746a978191117194d180104aed1'),
+      )
+      note1.commitment.should.be.eq.BN(
+        toBN('0x270a865e2bf7de26b0a6de08c527f4d13e2b49026f6aaeeea0866a9dd39e19f6'),
+      )
     })
   })
 

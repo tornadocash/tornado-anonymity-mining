@@ -25,11 +25,10 @@ class Note {
   }
 
   static fromString(note, instance, depositBlock, withdrawalBlock) {
-    note = note.split('-')
-    const [, currency, amount, netId] = note
-    const hexNote = note[4].slice(2)
-    const nullifier = new BN(hexNote.slice(0, 62), 16, 'le')
-    const secret = new BN(hexNote.slice(62), 16, 'le')
+    const [, currency, amount, netId, noteHex] = note.split('-')
+    const noteBuff = Buffer.from(noteHex.slice(2), 'hex')
+    const nullifier = new BN(noteBuff.slice(0, 31), 16, 'le')
+    const secret = new BN(noteBuff.slice(31), 16, 'le')
     return new Note({
       secret,
       nullifier,
