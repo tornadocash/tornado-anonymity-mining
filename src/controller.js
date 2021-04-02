@@ -131,7 +131,13 @@ class Controller {
     const newAccount = new Account({ amount: newAmount })
 
     depositDataEvents = depositDataEvents || (await this._fetchDepositDataEvents())
-    const depositLeaves = depositDataEvents.map((x) => poseidonHash([x.instance, x.hash, x.block]))
+    const depositLeaves = depositDataEvents.map((x) => {
+      if (x.poseidon) {
+        return x.poseidon
+      }
+
+      return poseidonHash([x.instance, x.hash, x.block])
+    })
     const depositTree = new MerkleTree(this.merkleTreeHeight, depositLeaves, { hashFunction: poseidonHash2 })
     const depositItem = depositDataEvents.filter((x) => x.hash === toFixedHex(note.commitment))
     if (depositItem.length === 0) {
@@ -140,7 +146,13 @@ class Controller {
     const depositPath = depositTree.path(depositItem[0].index)
 
     withdrawalDataEvents = withdrawalDataEvents || (await this._fetchWithdrawalDataEvents())
-    const withdrawalLeaves = withdrawalDataEvents.map((x) => poseidonHash([x.instance, x.hash, x.block]))
+    const withdrawalLeaves = withdrawalDataEvents.map((x) => {
+      if (x.poseidon) {
+        return x.poseidon
+      }
+
+      return poseidonHash([x.instance, x.hash, x.block])
+    })
     const withdrawalTree = new MerkleTree(this.merkleTreeHeight, withdrawalLeaves, {
       hashFunction: poseidonHash2,
     })
