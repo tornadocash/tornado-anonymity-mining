@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.0;
+pragma solidity >=0.6.0 <0.8.0;
 pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -55,7 +55,7 @@ contract TornadoProxy {
     ITornadoInstance _tornado,
     bytes32 _commitment,
     bytes calldata _encryptedNote
-  ) external payable {
+  ) public virtual payable {
     Instance memory instance = instances[_tornado];
     require(instance.state != InstanceState.DISABLED, "The instance is not supported");
 
@@ -79,7 +79,7 @@ contract TornadoProxy {
     address payable _relayer,
     uint256 _fee,
     uint256 _refund
-  ) external payable {
+  ) public virtual payable {
     Instance memory instance = instances[_tornado];
     require(instance.state != InstanceState.DISABLED, "The instance is not supported");
 
@@ -89,17 +89,17 @@ contract TornadoProxy {
     }
   }
 
-  function backupNotes(bytes[] calldata _encryptedNotes) external {
+  function backupNotes(bytes[] calldata _encryptedNotes) external virtual {
     for (uint256 i = 0; i < _encryptedNotes.length; i++) {
       emit EncryptedNote(msg.sender, _encryptedNotes[i]);
     }
   }
 
-  function updateInstance(Tornado calldata _tornado) external onlyGovernance {
+  function updateInstance(Tornado calldata _tornado) external virtual onlyGovernance {
     _updateInstance(_tornado);
   }
 
-  function setTornadoTreesContract(ITornadoTrees _tornadoTrees) external onlyGovernance {
+  function setTornadoTreesContract(ITornadoTrees _tornadoTrees) external virtual onlyGovernance {
     tornadoTrees = _tornadoTrees;
     emit TornadoTreesUpdated(_tornadoTrees);
   }
@@ -109,7 +109,7 @@ contract TornadoProxy {
     IERC20 _token,
     address payable _to,
     uint256 _amount
-  ) external onlyGovernance {
+  ) external virtual onlyGovernance {
     require(_to != address(0), "TORN: can not send to zero address");
 
     if (_token == IERC20(0)) {
