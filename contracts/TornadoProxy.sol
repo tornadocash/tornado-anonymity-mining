@@ -16,7 +16,11 @@ contract TornadoProxy {
   event InstanceStateUpdated(ITornadoInstance indexed instance, InstanceState state);
   event TornadoTreesUpdated(ITornadoTrees addr);
 
-  enum InstanceState { DISABLED, ENABLED, MINEABLE }
+  enum InstanceState {
+    DISABLED,
+    ENABLED,
+    MINEABLE
+  }
 
   struct Instance {
     bool isERC20;
@@ -42,7 +46,7 @@ contract TornadoProxy {
     address _tornadoTrees,
     address _governance,
     Tornado[] memory _instances
-  ) public {
+  ) {
     tornadoTrees = ITornadoTrees(_tornadoTrees);
     governance = _governance;
 
@@ -55,7 +59,7 @@ contract TornadoProxy {
     ITornadoInstance _tornado,
     bytes32 _commitment,
     bytes calldata _encryptedNote
-  ) public virtual payable {
+  ) public payable virtual {
     Instance memory instance = instances[_tornado];
     require(instance.state != InstanceState.DISABLED, "The instance is not supported");
 
@@ -79,7 +83,7 @@ contract TornadoProxy {
     address payable _relayer,
     uint256 _fee,
     uint256 _refund
-  ) public virtual payable {
+  ) public payable virtual {
     Instance memory instance = instances[_tornado];
     require(instance.state != InstanceState.DISABLED, "The instance is not supported");
 
