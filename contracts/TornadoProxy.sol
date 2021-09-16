@@ -60,7 +60,7 @@ contract TornadoProxy is EnsResolve {
     address payable _relayer,
     uint256 _fee,
     uint256 _refund
-  ) external payable {
+  ) external virtual payable {
     require(instances[_tornado], "The instance is not supported");
 
     _tornado.withdraw{ value: msg.value }(_proof, _root, _nullifierHash, _recipient, _relayer, _fee, _refund);
