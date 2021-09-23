@@ -16,11 +16,7 @@ contract TornadoProxy {
   event InstanceStateUpdated(ITornadoInstance indexed instance, InstanceState state);
   event TornadoTreesUpdated(ITornadoTrees addr);
 
-  enum InstanceState {
-    DISABLED,
-    ENABLED,
-    MINEABLE
-  }
+  enum InstanceState { DISABLED, ENABLED, MINEABLE }
 
   struct Instance {
     bool isERC20;
