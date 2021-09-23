@@ -1,6 +1,6 @@
 {
   "name": "tornado-anonymity-mining",
-  "version": "2.1.4",
+  "version": "2.1.5",
   "main": "index.js",
   "repository": "https://github.com/tornadocash/tornado-anonymity-mining.git",
   "author": "Tornadocash team <hello@tornado.cash>",
