@@ -46,7 +46,7 @@ contract TornadoProxy {
     address _tornadoTrees,
     address _governance,
     Tornado[] memory _instances
-  ) {
+  ) public {
     tornadoTrees = ITornadoTrees(_tornadoTrees);
     governance = _governance;
 
